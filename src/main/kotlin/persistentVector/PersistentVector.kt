@@ -2,10 +2,11 @@ package persistentVector
 
 import kotlin.math.min
 
-const val NodeLength = 32
+const val NodeLengthInBits = 5
+const val NodeLength = (1 shl NodeLengthInBits)
 
-class PersistentVector<E>: List<E> {
-    val root: Node<E>?
+class PersistentVector<E> : List<E> {
+    val root: Node<E>
 
     constructor() {
         root = EmptyNode()
@@ -29,17 +30,20 @@ class PersistentVector<E>: List<E> {
                 val end = min(index + 32, values.size)
                 val newValueNode = ValueNode(values.subList(index, end))
                 root = root?.plusNode(newValueNode)
-                    ?: TreeNode(newValueNode)
+                    ?: TreeNode(1, newValueNode)
             }
             return root!!
         }
     }
 
     override val size: Int
-        get() = TODO("Not yet implemented")
+        get() = root.size
 
     override fun get(index: Int): E {
-        TODO("Not yet implemented")
+        if (index >= size) {
+            throw IndexOutOfBoundsException("index: $index, $size: 0")
+        }
+        return root.get(index)
     }
 
     override fun isEmpty(): Boolean {

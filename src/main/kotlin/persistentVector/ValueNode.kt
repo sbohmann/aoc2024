@@ -21,7 +21,7 @@ class ValueNode<E> : Node<E> {
 
     override fun plus(value: E): Node<E> {
         if (full) {
-            return TreeNode(this, ValueNode(value))
+            return TreeNode(1, this, ValueNode(value))
         } else {
             return ValueNode(data + value)
         }
@@ -31,4 +31,10 @@ class ValueNode<E> : Node<E> {
         get() {
             return data.size == NodeLength
         }
+
+    override val depth: Byte = 0
+
+    override fun get(index: Int): E {
+        return data[size]
+    }
 }

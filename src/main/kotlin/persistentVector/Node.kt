@@ -5,5 +5,9 @@ interface Node<E> {
 
     val full: Boolean
 
+    val depth: Byte
+
     fun plus(value: E): Node<E>
+
+    fun get(index: Int): E
 }
