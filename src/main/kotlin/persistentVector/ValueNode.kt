@@ -8,15 +8,23 @@ class ValueNode<E> : Node<E> {
     }
 
     constructor(data: List<E>) {
-        if (data.size < 1 || data.size > NodeLength) {
-            throw IllegalArgumentException("Unexpected size of data: ${data.size} - min: 1, max: ${NodeLength}")
+        if (data.isEmpty() || data.size > NodeLength) {
+            throw IllegalArgumentException("Unexpected size of data: ${data.size} - min: 1, max: $NodeLength")
         }
         this.data = ArrayList(data)
     }
 
+    override val size: Int
+        get() {
+            return data.size
+        }
+
     override fun plus(value: E): Node<E> {
-        // TODO
-        return this
+        if (full) {
+            return TreeNode(this, ValueNode(value))
+        } else {
+            return ValueNode(data + value)
+        }
     }
 
     override val full: Boolean

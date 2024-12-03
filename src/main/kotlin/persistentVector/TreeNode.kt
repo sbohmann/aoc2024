@@ -2,17 +2,22 @@ package persistentVector
 
 class TreeNode<E>: Node<E> {
     val subNodes: List<Node<E>>
+    override val size: Int
 
     constructor(vararg subNodes: Node<E>) {
         if (subNodes.size < 1 || subNodes.size > NodeLength) {
             throw IllegalArgumentException("Unexpected size of data: ${subNodes.size} - min: 1, max: $NodeLength")
         }
         this.subNodes = subNodes.asList()
+        size = calculateSize()
     }
 
     private constructor(subNodes: List<Node<E>>) {
         this.subNodes = subNodes
+        this.size = calculateSize()
     }
+
+    private fun calculateSize() = this.subNodes.fold(0) { sum, next -> sum + next.size }
 
     override fun plus(value: E): Node<E> {
         if (!subNodes.last().full) {

@@ -5,5 +5,7 @@ class EmptyNode<E> : Node<E> {
         return ValueNode(value)
     }
 
+    override val size: Int = 0
+
     override val full = false
 }
