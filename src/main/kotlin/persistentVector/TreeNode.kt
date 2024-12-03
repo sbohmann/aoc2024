@@ -24,7 +24,7 @@ class TreeNode<E>: Node<E> {
         }
     }
 
-    fun plusNode(newNode: Node<E>): Node<E> {
+    fun plusNode(newNode: Node<E>): TreeNode<E> {
         if (subNodes.size < NodeLength) {
             return TreeNode(subNodes + newNode)
         } else {
