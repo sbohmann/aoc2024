@@ -7,16 +7,18 @@ const val NodeLength = (1 shl NodeLengthInBits)
 
 class PersistentVector<E> : List<E> {
     val root: Node<E>
+    override val size: Int
 
     constructor() {
         root = EmptyNode()
+        size = root.size
     }
 
-    constructor(vararg values: E) : this(values.asList()) {
-    }
+    constructor(vararg values: E) : this(values.asList())
 
     constructor(values: List<E>) {
         this.root = buildRoot(values)
+        size = root.size
     }
 
     private fun buildRoot(values: List<E>): Node<E> {
@@ -35,9 +37,6 @@ class PersistentVector<E> : List<E> {
             return root!!
         }
     }
-
-    override val size: Int
-        get() = root.size
 
     override fun get(index: Int): E {
         if (index >= size) {
