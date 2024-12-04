@@ -46,7 +46,7 @@ class TreeNode<E> : Node<E> {
         }
 
     override fun get(index: Int): E {
-        val valuesPerSubNode = NodeLength shl depth.toInt()
+        val valuesPerSubNode = NodeLength shl (NodeLengthInBits * depth)
         val subNodeIndex = index / valuesPerSubNode
         val indexForSubNode = subNodeIndex.mod(valuesPerSubNode)
         return subNodes[subNodeIndex].get(indexForSubNode)

@@ -47,19 +47,19 @@ class PersistentVector<E> : List<E> {
     }
 
     override fun isEmpty(): Boolean {
-        TODO("Not yet implemented")
+        return size == 0
     }
 
     override fun iterator(): Iterator<E> {
-        TODO("Not yet implemented")
+        return PersistentVectorIterator(root)
     }
 
     override fun listIterator(): ListIterator<E> {
-        TODO("Not yet implemented")
+        return PersistentVectorIterator(root)
     }
 
     override fun listIterator(index: Int): ListIterator<E> {
-        TODO("Not yet implemented")
+        return PersistentVectorIterator(root, index)
     }
 
     override fun subList(fromIndex: Int, toIndex: Int): List<E> {
