@@ -11,20 +11,18 @@ fun main() {
             line.split(Regex("""\s+"""))
                 .map(String::toInt)
         }
-    val resultA = rows.fold(0)
-        { accumulator, row ->
-            accumulator + (if (isSafe(row)) 1 else 0)
-        }
+    val resultA = rows.fold(0) { accumulator, row ->
+        accumulator + (if (isSafe(row)) 1 else 0)
+    }
     println("A: $resultA")
-    val resultB = rows.withIndex().fold(0)
-    { accumulator, row ->
+    val resultB = rows.withIndex().fold(0) { accumulator, row ->
         accumulator + (if (isSafe(row.value, true)) 1 else 0)
     }
     println("B: $resultB")
 }
 
 fun isSafe(numbers: List<Int>, applyDampener: Boolean = false): Boolean {
-    var ascending: Boolean = false
+    var ascending = false
     for (index in 0..<numbers.size - 1) {
         val nextNumberIsHigher = numbers[index + 1] > numbers[index]
         if (index == 0 && nextNumberIsHigher) {

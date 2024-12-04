@@ -23,11 +23,11 @@ class PersistentVector<E> : List<E> {
         if (values.isEmpty()) {
             return EmptyNode()
         } else if (values.size <= NodeLength) {
-            return ValueNode<E>(values)
+            return ValueNode(values)
         } else {
             var root: TreeNode<E>? = null
             for (index in 0..<values.size step NodeLength) {
-                val end = min(index + 32, values.size)
+                val end = min(index + NodeLength, values.size)
                 val newValueNode = ValueNode(values.subList(index, end))
                 root = root?.plusNode(newValueNode)
                     ?: TreeNode(1, newValueNode)
@@ -80,5 +80,15 @@ class PersistentVector<E> : List<E> {
 
     override fun contains(element: E): Boolean {
         TODO("Not yet implemented")
+    }
+}
+
+fun main() {
+    val iterator = PersistentVector(1, 2, 3).listIterator()
+    while (iterator.hasNext()) {
+        println(iterator.next())
+    }
+    while (iterator.hasPrevious()) {
+        println(iterator.previous())
     }
 }

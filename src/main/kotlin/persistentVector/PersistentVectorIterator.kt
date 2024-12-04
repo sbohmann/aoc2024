@@ -15,7 +15,7 @@ class PersistentVectorIterator<E>(
             currentIndex = 0
             currentNodeIndex = 0
         } else {
-            val valuesPerSubNode = NodeLength shl (NodeLengthInBits * rootNode.depth)
+            val valuesPerSubNode = NodeLength shl (NodeLengthInBits * (rootNode.depth - 1))
             this.currentIndex = initialIndex
             currentNodeIndex = currentIndex / valuesPerSubNode
             currentIndex = initialIndex
@@ -26,20 +26,20 @@ class PersistentVectorIterator<E>(
         var node = rootNode
         while (node is TreeNode) {
             val subNodeIndex = index shr (NodeLengthInBits * node.depth)
-            node = node.subNodes[index]
+            node = node.subNodes[subNodeIndex]
         }
         return node
     }
 
     override fun next(): E {
-        if (currentIndex >= size - 1) {
-            throw IndexOutOfBoundsException("index: $currentIndex, size: $size")
+        if (currentIndex >= size) {
+            throw NoSuchElementException("index: $currentIndex, size: $size")
         }
-        ++currentIndex
         val indexInsideNode = currentIndex % NodeLength
         if (indexInsideNode == 0) {
             currentNode = nodeForIndex(currentIndex)
         }
+        ++currentIndex
         if (currentNode is ValueNode) {
             return (currentNode as ValueNode<E>).data[indexInsideNode]
         } else {
@@ -47,11 +47,11 @@ class PersistentVectorIterator<E>(
         }
     }
 
-    override fun hasNext(): Boolean = currentIndex < size - 1
+    override fun hasNext(): Boolean = currentIndex < size
 
     override fun previous(): E {
-        if (currentIndex <= 0) {
-            throw IndexOutOfBoundsException("index: $currentIndex, size: $size")
+        if (currentIndex < 0) {
+            throw NoSuchElementException("index: $currentIndex, size: $size")
         }
         --currentIndex
         val indexInsideNode = currentIndex % NodeLength
@@ -69,14 +69,14 @@ class PersistentVectorIterator<E>(
 
     override fun nextIndex(): Int {
         if (currentIndex >= size - 1) {
-            throw IndexOutOfBoundsException("index: $currentIndex, size: $size")
+            throw NoSuchElementException("index: $currentIndex, size: $size")
         }
         return currentIndex + 1
     }
 
     override fun previousIndex(): Int {
         if (currentIndex <= 0) {
-            throw IndexOutOfBoundsException("index: $currentIndex, size: $size")
+            throw NoSuchElementException("index: $currentIndex, size: $size")
         }
         return currentIndex - 1
     }

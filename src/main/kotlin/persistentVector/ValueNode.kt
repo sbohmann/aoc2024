@@ -2,9 +2,11 @@ package persistentVector
 
 class ValueNode<E> : Node<E> {
     val data: List<E>
+    override val full: Boolean
 
     constructor(value: E) {
         this.data = listOf(value)
+        full = data.size == NodeLength
     }
 
     constructor(data: List<E>) {
@@ -12,6 +14,7 @@ class ValueNode<E> : Node<E> {
             throw IllegalArgumentException("Unexpected size of data: ${data.size} - min: 1, max: $NodeLength")
         }
         this.data = ArrayList(data)
+        full = data.size == NodeLength
     }
 
     override val size: Int
@@ -27,14 +30,9 @@ class ValueNode<E> : Node<E> {
         }
     }
 
-    override val full: Boolean
-        get() {
-            return data.size == NodeLength
-        }
-
     override val depth: Byte = 0
 
     override fun get(index: Int): E {
-        return data[size]
+        return data[index]
     }
 }
