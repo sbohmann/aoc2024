@@ -25,7 +25,7 @@ class PersistentVectorIterator<E>(
     private fun nodeForIndex(index: Int): Node<E> {
         var node = rootNode
         while (node is TreeNode) {
-            val subNodeIndex = index shr (NodeLengthInBits * node.depth)
+            val subNodeIndex = (index shr (NodeLengthInBits * node.depth)) % NodeLength
             node = node.subNodes[subNodeIndex]
         }
         return node

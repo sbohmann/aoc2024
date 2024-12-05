@@ -1,21 +1,14 @@
 package persistentVector
 
+const val debug: Boolean = false
+
 class TreeNode<E> : Node<E> {
     val subNodes: List<Node<E>>
     override val size: Int
     override val depth: Byte
     override val full: Boolean
 
-    constructor(depth: Byte, vararg subNodes: Node<E>) {
-        if (subNodes.isEmpty() || subNodes.size > NodeLength) {
-            throw IllegalArgumentException("Unexpected size of data: ${subNodes.size} - min: 1, max: $NodeLength")
-        }
-        this.subNodes = subNodes.asList()
-        size = calculateSize()
-        this.depth = depth
-        full = subNodes.size == NodeLength
-                && subNodes.last().full
-    }
+    constructor(depth: Byte, vararg subNodes: Node<E>): this(depth, subNodes.asList())
 
     private constructor(depth: Byte, subNodes: List<Node<E>>) {
         this.subNodes = subNodes
@@ -23,6 +16,32 @@ class TreeNode<E> : Node<E> {
         this.depth = depth
         full = subNodes.size == NodeLength
                 && subNodes.last().full
+        if (debug) {
+            check()
+        }
+    }
+
+    private fun check() {
+        for (index in 0..<subNodes.size - 1) {
+            val subNode = subNodes[index]
+            if (!subNode.full) {
+                throw IllegalStateException("Unexpected non-full sub node at index $index of ${subNodes.size}")
+            }
+            checkSubNode(subNode)
+        }
+        checkSubNode(subNodes.last())
+    }
+
+    private fun checkSubNode(subNode: Node<E>) {
+        if (subNode.depth.toInt() != depth - 1) {
+            throw IllegalStateException("Unexpected sub node depth ${subNode.depth} - expected: ${depth - 1}")
+        }
+        if (subNode.depth.toInt() == 0 && subNode is TreeNode) {
+            throw IllegalStateException("Unexpected tree node at depth 0")
+        }
+        if (subNode is TreeNode) {
+            subNode.check()
+        }
     }
 
     private fun calculateSize() = this.subNodes.fold(0) { sum, next -> sum + next.size }
