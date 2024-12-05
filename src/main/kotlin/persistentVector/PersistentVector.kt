@@ -16,6 +16,11 @@ class PersistentVector<E> : List<E> {
 
     constructor(vararg values: E) : this(values.asList())
 
+    private constructor(root: Node<E>) {
+        this.root = root
+        size = root.size
+    }
+
     constructor(values: List<E>) {
         this.root = buildRoot(values)
         size = root.size
@@ -47,6 +52,10 @@ class PersistentVector<E> : List<E> {
 
     override fun isEmpty(): Boolean {
         return size == 0
+    }
+
+    operator fun plus(value: E): PersistentVector<E> {
+        return PersistentVector(root.plus(value))
     }
 
     override fun iterator(): Iterator<E> {

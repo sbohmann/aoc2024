@@ -59,13 +59,14 @@ class PersistentVectorTest {
         assertEquals(300, listIterator.next())
         assertFalse(listIterator.hasNext())
     }
+
     @Test
     fun `test persistent vector with large number of elements`() {
-        val elements = Array(25000) { it }
-        val vector = PersistentVector(*elements)
+        val elements = Array(250000) { it }
+        val vector = PersistentVector(elements.asList())
 
         assertFalse(vector.isEmpty(), "Failed: Expected vector to be not empty")
-        assertEquals(25000, vector.size, "Failed: Expected size to be 25000")
+        assertEquals(250000, vector.size, "Failed: Expected size to be 250000")
 
         for (i in 0 until vector.size) {
             assertEquals(elements[i], vector[i], "Failed: Element at index $i does not match")
@@ -74,7 +75,7 @@ class PersistentVectorTest {
 
     @Test
     fun `test iterator of large vector`() {
-        val elements = Array(25000) { it }
+        val elements = Array(250000) { it }
         val vector = PersistentVector(elements.asList())
         val iterator = vector.iterator()
         var index = 0
@@ -83,6 +84,35 @@ class PersistentVectorTest {
             assertEquals(elements[index], iterator.next(), "Failed: Iterator element at index $index does not match")
             index++
         }
-        assertEquals(25000, index, "Failed: Iterator did not traverse all elements")
+        assertEquals(250000, index, "Failed: Iterator did not traverse all elements")
+    }
+
+    @Test
+    fun `test persistent vector with large number of elements and built using +`() {
+        var vector = PersistentVector<Int>()
+        val elements = Array(250000) { it }
+        elements.forEach { vector += it }
+
+        assertFalse(vector.isEmpty(), "Failed: Expected vector to be not empty")
+        assertEquals(250000, vector.size, "Failed: Expected size to be 250000")
+
+        for (i in 0 until vector.size) {
+            assertEquals(elements[i], vector[i], "Failed: Element at index $i does not match")
+        }
+    }
+
+    @Test
+    fun `test iterator of large vector and built using +`() {
+        var vector = PersistentVector<Int>()
+        val elements = Array(250000) { it }
+        elements.forEach { vector += it }
+        val iterator = vector.iterator()
+        var index = 0
+
+        while (iterator.hasNext()) {
+            assertEquals(elements[index], iterator.next(), "Failed: Iterator element at index $index does not match")
+            index++
+        }
+        assertEquals(250000, index, "Failed: Iterator did not traverse all elements")
     }
 }
