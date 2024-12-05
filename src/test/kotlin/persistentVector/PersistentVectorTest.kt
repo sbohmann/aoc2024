@@ -115,4 +115,46 @@ class PersistentVectorTest {
         }
         assertEquals(250000, index, "Failed: Iterator did not traverse all elements")
     }
+
+    @Test
+    fun `test subList operation`() {
+        val vector = PersistentVector(1, 2, 3, 4, 5)
+        val subVector = vector.subList(1, 4)
+
+        assertEquals(3, subVector.size, "Failed: Expected size of sublist to be 3")
+        assertEquals(2, subVector[0], "Failed: Expected first element of sublist to be 2")
+        assertEquals(4, subVector[2], "Failed: Expected last element of sublist to be 4")
+    }
+
+    @Test
+    fun `test lastIndexOf operation`() {
+        val vector = PersistentVector(1, 2, 3, 2, 4)
+        val lastIndex = vector.lastIndexOf(2)
+
+        assertEquals(3, lastIndex, "Failed: Expected last index of 2 to be 3")
+    }
+
+    @Test
+    fun `test indexOf operation`() {
+        val vector = PersistentVector(1, 2, 3, 2, 4)
+        val index = vector.indexOf(2)
+
+        assertEquals(1, index, "Failed: Expected first index of 2 to be 1")
+    }
+
+    @Test
+    fun `test containsAll operation`() {
+        val vector = PersistentVector(1, 2, 3, 4, 5)
+        val containsAllResult = vector.containsAll(listOf(2, 3, 4))
+
+        assertTrue(containsAllResult, "Failed: Expected vector to contain all elements 2, 3, 4")
+    }
+
+    @Test
+    fun `test contains operation`() {
+        val vector = PersistentVector(1, 2, 3, 4, 5)
+        val containsResult = vector.contains(3)
+
+        assertTrue(containsResult, "Failed: Expected vector to contain element 3")
+    }
 }

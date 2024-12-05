@@ -5,7 +5,7 @@ import kotlin.math.min
 const val NodeLengthInBits = 5
 const val NodeLength = (1 shl NodeLengthInBits)
 
-class PersistentVector<E> : List<E> {
+class PersistentVector<E> : AbstractList<E> {
     val root: Node<E>
     override val size: Int
 
@@ -68,26 +68,6 @@ class PersistentVector<E> : List<E> {
 
     override fun listIterator(index: Int): ListIterator<E> {
         return PersistentVectorIterator(root, index)
-    }
-
-    override fun subList(fromIndex: Int, toIndex: Int): List<E> {
-        TODO("Not yet implemented")
-    }
-
-    override fun lastIndexOf(element: E): Int {
-        TODO("Not yet implemented")
-    }
-
-    override fun indexOf(element: E): Int {
-        TODO("Not yet implemented")
-    }
-
-    override fun containsAll(elements: Collection<E>): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun contains(element: E): Boolean {
-        TODO("Not yet implemented")
     }
 }
 

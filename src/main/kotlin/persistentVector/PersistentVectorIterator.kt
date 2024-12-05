@@ -14,11 +14,14 @@ class PersistentVectorIterator<E>(
         if (initialIndex == 0) {
             currentIndex = 0
             currentNodeIndex = 0
-        } else {
+        } else if (rootNode is TreeNode) {
             val valuesPerSubNode = NodeLength shl (NodeLengthInBits * (rootNode.depth - 1))
-            this.currentIndex = initialIndex
+            currentIndex = initialIndex
             currentNodeIndex = currentIndex / valuesPerSubNode
             currentIndex = initialIndex
+        } else {
+            currentIndex = initialIndex
+            currentNodeIndex = 0
         }
     }
 
@@ -71,7 +74,7 @@ class PersistentVectorIterator<E>(
         if (currentIndex >= size - 1) {
             throw NoSuchElementException("index: $currentIndex, size: $size")
         }
-        return currentIndex + 1
+        return currentIndex
     }
 
     override fun previousIndex(): Int {
