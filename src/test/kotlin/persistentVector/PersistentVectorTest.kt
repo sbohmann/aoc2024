@@ -3,6 +3,8 @@ package persistentVector
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
+const val vectorSize = 2_500_000
+
 class PersistentVectorTest {
     @Test
     fun `test empty persistent vector`() {
@@ -62,11 +64,11 @@ class PersistentVectorTest {
 
     @Test
     fun `test persistent vector with large number of elements`() {
-        val elements = Array(250000) { it }
+        val elements = Array(vectorSize) { it }
         val vector = PersistentVector(elements.asList())
 
         assertFalse(vector.isEmpty(), "Failed: Expected vector to be not empty")
-        assertEquals(250000, vector.size, "Failed: Expected size to be 250000")
+        assertEquals(vectorSize, vector.size, "Failed: Expected size to be vectorSize")
 
         for (i in 0 until vector.size) {
             assertEquals(elements[i], vector[i], "Failed: Element at index $i does not match")
@@ -75,7 +77,7 @@ class PersistentVectorTest {
 
     @Test
     fun `test iterator of large vector`() {
-        val elements = Array(250000) { it }
+        val elements = Array(vectorSize) { it }
         val vector = PersistentVector(elements.asList())
         val iterator = vector.iterator()
         var index = 0
@@ -84,17 +86,17 @@ class PersistentVectorTest {
             assertEquals(elements[index], iterator.next(), "Failed: Iterator element at index $index does not match")
             index++
         }
-        assertEquals(250000, index, "Failed: Iterator did not traverse all elements")
+        assertEquals(vectorSize, index, "Failed: Iterator did not traverse all elements")
     }
 
     @Test
     fun `test persistent vector with large number of elements and built using +`() {
         var vector = PersistentVector<Int>()
-        val elements = Array(250000) { it }
+        val elements = Array(vectorSize) { it }
         elements.forEach { vector += it }
 
         assertFalse(vector.isEmpty(), "Failed: Expected vector to be not empty")
-        assertEquals(250000, vector.size, "Failed: Expected size to be 250000")
+        assertEquals(vectorSize, vector.size, "Failed: Expected size to be vectorSize")
 
         for (i in 0 until vector.size) {
             assertEquals(elements[i], vector[i], "Failed: Element at index $i does not match")
@@ -103,11 +105,11 @@ class PersistentVectorTest {
 
     @Test
     fun `test persistent vector with large number of elements and created from Iterable +`() {
-        val elements = Array(250000) { it }
+        val elements = Array(vectorSize) { it }
         val vector = PersistentVector(elements.asIterable())
 
         assertFalse(vector.isEmpty(), "Failed: Expected vector to be not empty")
-        assertEquals(250000, vector.size, "Failed: Expected size to be 250000")
+        assertEquals(vectorSize, vector.size, "Failed: Expected size to be vectorSize")
 
         for (i in 0 until vector.size) {
             assertEquals(elements[i], vector[i], "Failed: Element at index $i does not match")
@@ -117,7 +119,7 @@ class PersistentVectorTest {
     @Test
     fun `test iterator of large vector and built using +`() {
         var vector = PersistentVector<Int>()
-        val elements = Array(250000) { it }
+        val elements = Array(vectorSize) { it }
         elements.forEach { vector += it }
         val iterator = vector.iterator()
         var index = 0
@@ -126,7 +128,7 @@ class PersistentVectorTest {
             assertEquals(elements[index], iterator.next(), "Failed: Iterator element at index $index does not match")
             index++
         }
-        assertEquals(250000, index, "Failed: Iterator did not traverse all elements")
+        assertEquals(vectorSize, index, "Failed: Iterator did not traverse all elements")
     }
 
     @Test

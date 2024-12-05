@@ -1,6 +1,6 @@
 package persistentVector
 
-const val debug: Boolean = false
+const val debug: Boolean = true
 
 class TreeNode<E> : Node<E> {
     val subNodes: List<Node<E>>
