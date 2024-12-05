@@ -33,7 +33,7 @@ class TreeNode<E> : Node<E> {
         } else if (subNodes.last().full) {
             return plusNode(ValueNode(value))
         } else {
-            val newSubNodes = subNodes.subList(0, subNodes.size - 1).plus(subNodes.last().plus(value))
+            val newSubNodes = subNodes.subList(0, subNodes.size - 1) + subNodes.last().plus(value)
             return TreeNode(depth, newSubNodes)
         }
     }
@@ -45,15 +45,15 @@ class TreeNode<E> : Node<E> {
         val lastSubNode = subNodes.last()
         if (lastSubNode is TreeNode) {
             if (lastSubNode.full) {
-                return TreeNode(depth, subNodes.plus(lastSubNode.plusNode(nodeAtDepth(newNode, (depth - 1).toByte()))))
+                return TreeNode(depth, subNodes + nodeAtDepth(newNode, (depth - 1).toByte()))
             } else {
-                return TreeNode(depth, subNodes.subList(0, subNodes.size - 1).plus(nodeAtDepth(lastSubNode.plusNode(newNode), (depth - 1).toByte())))
+                return TreeNode(depth, subNodes.subList(0, subNodes.size - 1) + lastSubNode.plusNode(newNode))
             }
         } else {
             if (!lastSubNode.full) {
                 throw IllegalStateException("Logical error: last tree sub node is not full")
             }
-            return TreeNode(depth, subNodes.plus(newNode))
+            return TreeNode(depth, subNodes + newNode)
         }
     }
 
