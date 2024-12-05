@@ -16,6 +16,13 @@ class PersistentVector<E> : AbstractList<E> {
 
     constructor(vararg values: E) : this(values.asList())
 
+    constructor(source: Iterable<E>) {
+        var root: Node<E> = EmptyNode()
+        source.forEach { root = root.plus(it) }
+        this.root = root
+        size = root.size
+    }
+
     private constructor(root: Node<E>) {
         this.root = root
         size = root.size

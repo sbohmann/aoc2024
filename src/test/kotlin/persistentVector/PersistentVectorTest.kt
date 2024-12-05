@@ -102,6 +102,19 @@ class PersistentVectorTest {
     }
 
     @Test
+    fun `test persistent vector with large number of elements and created from Iterable +`() {
+        val elements = Array(250000) { it }
+        val vector = PersistentVector(elements.asIterable())
+
+        assertFalse(vector.isEmpty(), "Failed: Expected vector to be not empty")
+        assertEquals(250000, vector.size, "Failed: Expected size to be 250000")
+
+        for (i in 0 until vector.size) {
+            assertEquals(elements[i], vector[i], "Failed: Element at index $i does not match")
+        }
+    }
+
+    @Test
     fun `test iterator of large vector and built using +`() {
         var vector = PersistentVector<Int>()
         val elements = Array(250000) { it }
