@@ -90,4 +90,8 @@ class TreeNode<E> : Node<E> {
         val indexForSubNode = index % valuesPerSubNode
         return subNodes[subNodeIndex].get(indexForSubNode)
     }
+
+    override fun with(index: Int, value: E): Node<E> {
+        TODO("Not yet implemented")
+    }
 }

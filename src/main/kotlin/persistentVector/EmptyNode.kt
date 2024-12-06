@@ -14,4 +14,8 @@ class EmptyNode<E> : Node<E> {
     override fun get(index: Int): E {
         throw UnsupportedOperationException()
     }
+
+    override fun with(index: Int, value: E): Node<E> {
+        TODO("Not yet implemented")
+    }
 }

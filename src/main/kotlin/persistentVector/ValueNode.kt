@@ -32,4 +32,8 @@ class ValueNode<E> : Node<E> {
     override fun get(index: Int): E {
         return data[index]
     }
+
+    override fun with(index: Int, value: E): Node<E> {
+        TODO("Not yet implemented")
+    }
 }
