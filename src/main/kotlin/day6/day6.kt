@@ -11,8 +11,10 @@ data class Map(val width: Int, val height: Int, val rows: PersistentVector<List<
     }
 }
 
+const val inputFileName = "input"
+
 fun main() {
-    val (map, initialGuardPosition) = File("input")
+    val (map, initialGuardPosition) = File(inputFileName)
         .readLines()
         .fold(Pair(Map(width = 0, height = 0, rows = PersistentVector()), null as Position?))
         { (map, oldGuardPosition), line ->
@@ -36,8 +38,13 @@ fun main() {
             }
         }
 
-    val resultA = solveA(map, initialGuardPosition!!)
+    initialGuardPosition!!
+
+    val resultA = solveA(map, initialGuardPosition)
     println("A: $resultA")
+
+    val resultB = solveB(map, initialGuardPosition)
+    println("B: $resultB")
 }
 
 fun parseRow(line: String): Pair<List<Boolean>, Int?> {
@@ -49,7 +56,7 @@ fun parseRow(line: String): Pair<List<Boolean>, Int?> {
             }
             when (it.value) {
                 '#' -> true
-                '.','^'  -> false
+                '.', '^' -> false
                 else -> throw IllegalArgumentException("Unparsable character [$it]")
             }
         }
@@ -57,7 +64,7 @@ fun parseRow(line: String): Pair<List<Boolean>, Int?> {
 }
 
 enum class Direction(val deltaX: Int, val deltaY: Int, val next: () -> Direction) {
-    Up(0,-1, { Right }),
+    Up(0, -1, { Right }),
     Right(1, 0, { Down }),
     Down(0, 1, { Left }),
     Left(-1, 0, { Up })
@@ -73,6 +80,58 @@ fun solveA(map: Map, initialGuardPosition: Position): Int {
         guardPosition = move(guardPosition, direction)
     }
     return positionsOccupied.size
+}
+
+fun solveB(map: Map, initialGuardPosition: Position): Int {
+    var loopingPositionsCount = 0
+    for (y in 0..<map.height) {
+        for (x in 0..<map.width) {
+            val position = Position(x, y)
+            if (initialGuardPosition != position && !occupied(position, map)) {
+                val modifiedMap = buildMapOccupiedAt(map, y, x)
+                if (looping(modifiedMap, initialGuardPosition)) {
+                    ++loopingPositionsCount
+                }
+            }
+        }
+    }
+    return loopingPositionsCount
+}
+
+fun looping(map: Map, initialGuardPosition: Position): Boolean {
+    var guardPosition = initialGuardPosition
+    var direction = Direction.Up
+    val knownStates = mutableSetOf<Pair<Position, Direction>>()
+    while (inside(guardPosition, map)) {
+        if (!knownStates.add(Pair(guardPosition, direction))) {
+            return true
+        }
+        direction = adaptedDirection(guardPosition, direction, map)
+        guardPosition = move(guardPosition, direction)
+    }
+    return false
+}
+
+private fun buildMapOccupiedAt(map: Map, y: Int, x: Int): Map {
+    val modifiedRows = map.rows.withIndex()
+        .map { indexedRow ->
+            val (rowIndex, row) = indexedRow
+            if (rowIndex == y) {
+                row.withIndex()
+                    .map { indexedValue ->
+                        val (valueIndex, value) = indexedValue
+                        if (valueIndex == x) {
+                            true
+                        } else {
+                            value
+                        }
+                    }
+            } else {
+                row
+            }
+        }
+    val modifiedMap = map.copy(rows = PersistentVector(modifiedRows))
+    return modifiedMap
 }
 
 fun inside(position: Position, map: Map): Boolean {
@@ -93,11 +152,15 @@ fun adaptedDirection(position: Position, originalDirection: Direction, map: Map)
 
 fun occupiedInDirection(position: Position, direction: Direction, map: Map): Boolean {
     val nextPosition = move(position, direction)
-    return inside(nextPosition, map) && map.get(nextPosition)
+    return occupied(nextPosition, map)
 }
+
+private fun occupied(nextPosition: Position, map: Map) =
+    inside(nextPosition, map) && map.get(nextPosition)
 
 fun move(position: Position, by: Direction): Position {
     return position.copy(
         x = position.x + by.deltaX,
-        y = position.y + by.deltaY)
+        y = position.y + by.deltaY
+    )
 }
