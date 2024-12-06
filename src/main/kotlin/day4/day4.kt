@@ -12,7 +12,7 @@ fun main() {
         .readLines()
         .fold(Map(width = 0, height = 0, data = PersistentVector()))
         { map, line ->
-            if (map.width != 0 && line.length != map.width) {
+            if (map.height != 0 && line.length != map.width) {
                 throw IllegalStateException()
             }
             map.copy(
