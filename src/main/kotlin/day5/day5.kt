@@ -3,7 +3,6 @@ package day5
 import java.io.File
 
 const val inputFileName = "input"
-//const val inputFileName = "exampleInput"
 
 fun main() {
     val (rulesSection, updatesSection) = readSections()
