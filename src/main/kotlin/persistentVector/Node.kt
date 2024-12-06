@@ -10,4 +10,6 @@ interface Node<E> {
     fun plus(value: E): Node<E>
 
     fun get(index: Int): E
+
+    fun with(index: Int, value: E): Node<E>
 }

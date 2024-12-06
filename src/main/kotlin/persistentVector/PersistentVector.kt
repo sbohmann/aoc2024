@@ -57,6 +57,10 @@ class PersistentVector<E> : AbstractList<E> {
         return root.get(index)
     }
 
+    fun with(index: Int, value: E): PersistentVector<E> {
+        return PersistentVector(root = root.with(index, value))
+    }
+
     override fun isEmpty(): Boolean {
         return size == 0
     }
