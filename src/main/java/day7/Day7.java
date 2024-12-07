@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -21,41 +23,24 @@ public class Day7 {
         }
 
         long resultA = 0L;
-        List<Operator> operatorsForA = Operator.getSubList(0, 2);
-
+        List<Operator> operatorsForA = Arrays.asList(Operator.values()).subList(0, 2);
         for (Equation equation : equations) {
             if (possible(equation, operatorsForA)) {
-                resultA += equation.getResult();
+                resultA += equation.result();
             }
         }
         System.out.println("A: " + resultA);
 
         long resultB = 0L;
         for (Equation equation : equations) {
-            if (possible(equation, Operator.entries())) {
-                resultB += equation.getResult();
+            if (possible(equation, Arrays.asList(Operator.values()))) {
+                resultB += equation.result();
             }
         }
         System.out.println("B: " + resultB);
     }
 
-    public static class Equation {
-        private final long result;
-        private final List<Long> input;
-
-        public Equation(long result, List<Long> input) {
-            this.result = result;
-            this.input = input;
-        }
-
-        public long getResult() {
-            return result;
-        }
-
-        public List<Long> getInput() {
-            return input;
-        }
-    }
+    public record Equation(long result, List<Long> input) {}
 
     public static Equation parseEquation(String line) {
         String[] parts = line.split(": ");
@@ -71,27 +56,14 @@ public class Day7 {
         Multiplication((lhs, rhs) -> lhs * rhs),
         Concatenation((lhs, rhs) -> Long.parseLong(Long.toString(lhs) + rhs));
 
-        private final OperatorFunction apply;
+        private final BiFunction<Long, Long, Long> implementation;
 
-        Operator(OperatorFunction apply) {
-            this.apply = apply;
+        Operator(BiFunction<Long, Long, Long> implementation) {
+            this.implementation = implementation;
         }
 
         public long apply(long lhs, long rhs) {
-            return apply.apply(lhs, rhs);
-        }
-
-        @FunctionalInterface
-        public interface OperatorFunction {
-            long apply(long lhs, long rhs);
-        }
-
-        public static List<Operator> getSubList(int fromIndex, int toIndex) {
-            return List.of(values()).subList(fromIndex, toIndex);
-        }
-
-        public static List<Operator> entries() {
-            return List.of(values());
+            return implementation.apply(lhs, rhs);
         }
     }
 
@@ -127,7 +99,7 @@ public class Day7 {
     }
 
     public static boolean possible(Equation equation, List<Operator> operators) {
-        for (OperatorChains chain = new OperatorChains(operators, equation.getInput().size() - 1); chain.hasNext(); ) {
+        for (OperatorChains chain = new OperatorChains(operators, equation.input().size() - 1); chain.hasNext(); ) {
             if (correct(equation, chain.next())) {
                 return true;
             }
@@ -136,12 +108,12 @@ public class Day7 {
     }
 
     public static boolean correct(Equation equation, List<Operator> chain) {
-        long result = equation.getInput().get(0);
-        for (int index = 0; index < equation.getInput().size() - 1; ++index) {
+        long result = equation.input().get(0);
+        for (int index = 0; index < equation.input().size() - 1; ++index) {
             Operator operator = chain.get(index);
-            long nextInputValue = equation.getInput().get(index + 1);
+            long nextInputValue = equation.input().get(index + 1);
             result = operator.apply(result, nextInputValue);
         }
-        return result == equation.getResult();
+        return result == equation.result();
     }
 }
