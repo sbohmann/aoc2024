@@ -7,10 +7,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Day7 {
     public static void main(String[] args) {
-        List<Equation> equations = new ArrayList<>();
+        List<Equation> equations;
         try (var lines = Files.lines(new File("./input").toPath())){
             equations = lines
                     .map(Day7::parseEquation)
@@ -59,7 +60,7 @@ public class Day7 {
     public static Equation parseEquation(String line) {
         String[] parts = line.split(": ");
         long result = Long.parseLong(parts[0]);
-        List<Long> input = List.of(parts[1].split(" ")).stream()
+        List<Long> input = Stream.of(parts[1].split(" "))
                 .map(Long::parseLong)
                 .collect(Collectors.toList());
         return new Equation(result, input);
