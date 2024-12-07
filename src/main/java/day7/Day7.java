@@ -12,15 +12,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 class Day7 {
-    public static void main(String[] args) {
-        List<Equation> equations;
-        try (var lines = Files.lines(new File("./input").toPath())){
-            equations = lines
+    public static void main(String[] args) throws IOException {
+        List<Equation> equations = Files.readAllLines(new File("./input").toPath()).stream()
                     .map(Day7::parseEquation)
                     .toList();
-        } catch (IOException error) {
-            throw new RuntimeException(error);
-        }
 
         long resultA = 0L;
         List<Operator> operatorsForA = Arrays.asList(Operator.values()).subList(0, 2);
