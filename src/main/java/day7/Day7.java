@@ -11,7 +11,7 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Day7 {
+class Day7 {
     public static void main(String[] args) {
         List<Equation> equations;
         try (var lines = Files.lines(new File("./input").toPath())){
@@ -40,9 +40,9 @@ public class Day7 {
         System.out.println("B: " + resultB);
     }
 
-    public record Equation(long result, List<Long> input) {}
+    record Equation(long result, List<Long> input) {}
 
-    public static Equation parseEquation(String line) {
+    static Equation parseEquation(String line) {
         String[] parts = line.split(": ");
         long result = Long.parseLong(parts[0]);
         List<Long> input = Stream.of(parts[1].split(" "))
@@ -51,7 +51,7 @@ public class Day7 {
         return new Equation(result, input);
     }
 
-    public enum Operator {
+    enum Operator {
         Addition(Long::sum),
         Multiplication((lhs, rhs) -> lhs * rhs),
         Concatenation((lhs, rhs) -> Long.parseLong(Long.toString(lhs) + rhs));
@@ -67,11 +67,11 @@ public class Day7 {
         }
     }
 
-    public static class OperatorChains implements Iterator<List<Operator>> {
-        private final List<Operator> availableOperators;
-        private final int length;
-        private final int period;
-        private int state = 0;
+    static class OperatorChains implements Iterator<List<Operator>> {
+        final List<Operator> availableOperators;
+        final int length;
+        final int period;
+        int state = 0;
 
         public OperatorChains(List<Operator> availableOperators, int length) {
             this.availableOperators = availableOperators;
@@ -98,7 +98,7 @@ public class Day7 {
         }
     }
 
-    public static boolean possible(Equation equation, List<Operator> operators) {
+    static boolean possible(Equation equation, List<Operator> operators) {
         for (OperatorChains chain = new OperatorChains(operators, equation.input().size() - 1); chain.hasNext(); ) {
             if (correct(equation, chain.next())) {
                 return true;
@@ -107,7 +107,7 @@ public class Day7 {
         return false;
     }
 
-    public static boolean correct(Equation equation, List<Operator> chain) {
+    static boolean correct(Equation equation, List<Operator> chain) {
         long result = equation.input().get(0);
         for (int index = 0; index < equation.input().size() - 1; ++index) {
             Operator operator = chain.get(index);
