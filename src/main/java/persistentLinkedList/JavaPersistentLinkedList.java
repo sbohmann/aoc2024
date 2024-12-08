@@ -38,7 +38,7 @@ public class JavaPersistentLinkedList<E> extends AbstractList<E> {
             --runningIndex;
             nextList = Objects.requireNonNull(nextList).next;
         }
-        return value;
+        return Objects.requireNonNull(nextList).value;
     }
 
     @NotNull

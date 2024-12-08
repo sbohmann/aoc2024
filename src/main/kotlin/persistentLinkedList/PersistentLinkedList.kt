@@ -15,7 +15,7 @@ data class PersistentLinkedList<E>(val value: E, val next: PersistentLinkedList<
             --runningIndex
             nextList = nextList?.next
         }
-        return value
+        return nextList!!.value
     }
 
     override fun iterator(): Iterator<E> {
