@@ -20,18 +20,18 @@ data class PersistentLinkedList<E>(val value: E, val next: PersistentLinkedList<
 
     override fun iterator(): Iterator<E> {
         return object: Iterator<E> {
-            var start: PersistentLinkedList<E>? = this@PersistentLinkedList
+            var current: PersistentLinkedList<E>? = this@PersistentLinkedList
 
             override fun hasNext(): Boolean {
-                return start != null
+                return current != null
             }
 
             override fun next(): E {
-                if (start == null) {
+                if (current == null) {
                     throw NoSuchElementException()
                 }
-                val result = start!!.value
-                start = start!!.next
+                val result = current!!.value
+                current = current!!.next
                 return result
             }
         }

@@ -44,18 +44,18 @@ public class JavaPersistentLinkedList<E> extends AbstractList<E> {
     @NotNull
     public Iterator<E> iterator() {
         return new Iterator<>() {
-            JavaPersistentLinkedList<E> start = JavaPersistentLinkedList.this;
+            JavaPersistentLinkedList<E> current = JavaPersistentLinkedList.this;
 
             public boolean hasNext() {
-                return start != null;
+                return current != null;
             }
 
             public E next() {
-                if (start == null) {
+                if (current == null) {
                     throw new NoSuchElementException();
                 }
-                var result = start.value;
-                start = start.next;
+                var result = current.value;
+                current = current.next;
                 return result;
             }
         };
