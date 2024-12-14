@@ -3,9 +3,9 @@ package day10
 import java.io.File
 
 fun main() {
-    val map = readMapData()
-
+    val map = readMapData("input")
     println("A: ${A(map).result}")
+    println("B: ${B(map).result}")
 }
 
 class A(val map: Map) {
@@ -29,8 +29,35 @@ class A(val map: Map) {
     }
 }
 
-private fun readMapData(): Map {
-    val mapData = File("input")
+class B(val map: Map) {
+    val result: Int
+
+    init {
+        result = map.fields()
+            .filter { it.elevation == 0 }
+            .fold(0) { sum, field ->
+                sum + numberOfPathsToEndPositions(field)
+            }
+    }
+
+    fun numberOfPathsToEndPositions(field: Field): Int {
+        return pathsToEndPositions(field, setOf(listOf())).size
+    }
+
+    fun pathsToEndPositions(field: Field, pathsToField: Set<List<Field>>): Set<List<Field>> {
+        val result = pathsToField.map { path -> path + field }
+        if (field.elevation == 9) {
+            return result.toSet()
+        } else {
+            return map.neighboringPositionsElevatedByOne(field)
+                .flatMap { neighboringField -> pathsToEndPositions(neighboringField, result.toSet()) }
+                .toSet()
+        }
+    }
+}
+
+private fun readMapData(path: String): Map {
+    val mapData = File(path)
         .readLines()
         .withIndex()
         .map { (y, line) -> parseLine(y, line) }
