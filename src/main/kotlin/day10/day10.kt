@@ -2,8 +2,10 @@ package day10
 
 import java.io.File
 
+const val inputPath = "input"
+
 fun main() {
-    val map = readMapData("input")
+    val map = readMapData()
     println("A: ${A(map).result}")
     println("B: ${B(map).result}")
 }
@@ -56,8 +58,8 @@ class B(val map: Map) {
     }
 }
 
-private fun readMapData(path: String): Map {
-    val mapData = File(path)
+private fun readMapData(): Map {
+    val mapData = File(inputPath)
         .readLines()
         .withIndex()
         .map { (y, line) -> parseLine(y, line) }
