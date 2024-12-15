@@ -68,11 +68,12 @@ fun approximate(
     bVectorSteps: Long,
     distance: Vector
 ): AdjustedOffset? {
-    val (distanceOverCurrentVector, stepsForCurrentVector) = divideDistance(distance, currentVector)
+    val distanceOverCurrentVector = distance / currentVector
+    val steps = distanceOverCurrentVector.quotient
     if (distanceOverCurrentVector.quotient == 0L && !distanceOverCurrentVector.remainder.isZero) {
         return null
     }
-    val relativeOffset = stepsForCurrentVector * currentVector
+    val relativeOffset = steps * currentVector
     if (relativeOffset.isZero) {
         return null
     }
@@ -82,11 +83,11 @@ fun approximate(
     if (distanceOverCurrentVector.remainder.isZero) {
         return AdjustedOffset(
             relativeOffset,
-            aVectorSteps + if (vectorA) stepsForCurrentVector else 0L,
-            bVectorSteps + if (!vectorA) stepsForCurrentVector else 0L,
+            aVectorSteps + if (vectorA) steps else 0L,
+            bVectorSteps + if (!vectorA) steps else 0L,
         )
     }
-    val (distanceOverNextVector) = divideDistance(distance, nextVector)
+    val distanceOverNextVector = distance / nextVector
     val usingCurrentVectorForNextIteration: Boolean
     if (distanceOverCurrentVector.quotient > distanceOverNextVector.quotient) {
         usingCurrentVectorForNextIteration = true
@@ -97,16 +98,10 @@ fun approximate(
         if (usingCurrentVectorForNextIteration) vectorA else !vectorA,
         if (usingCurrentVectorForNextIteration) currentVector else nextVector,
         if (usingCurrentVectorForNextIteration) nextVector else currentVector,
-        aVectorSteps + if (vectorA) stepsForCurrentVector else 0L,
-        bVectorSteps + if (!vectorA) stepsForCurrentVector else 0L,
+        aVectorSteps + if (vectorA) steps else 0L,
+        bVectorSteps + if (!vectorA) steps else 0L,
         distance - relativeOffset
     )
-}
-
-private fun divideDistance(distance: Vector, currentVector: Vector): Pair<DivisionResult, Long> {
-    val distanceOverVector = distance / currentVector
-    val steps = distanceOverVector.quotient / 2
-    return Pair(distanceOverVector, steps)
 }
 
 fun minimumTokensForSetup(setup: Setup): Long {
