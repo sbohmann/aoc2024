@@ -14,7 +14,7 @@ val setupRegex = Regex(
 const val solutionBOffset = 0L
 
 fun main() {
-    val setups = File("input")
+    val setups = File("exampleInput")
         .readText()
         .split(doubleNewline)
         .map { parseSetup(it) }
@@ -75,8 +75,8 @@ fun approximate(
         return SearchResult(aVectorSteps, bVectorSteps)
     }
     val steps = nonOvershootingSteps(distance, currentVector, nextVector)
-    if (steps == null) {
-        return null
+    if (steps == 0L) {
+        return SearchResult(aVectorSteps, bVectorSteps)
     }
     return approximate(
         !vectorA,
@@ -88,20 +88,19 @@ fun approximate(
     )
 }
 
-fun nonOvershootingSteps(distance: Vector, currentVector: Vector, nextVector: Vector): Long? {
-    return nonOvershootingSteps(distance, currentVector, nextVector, (distance / currentVector).quotient)
-}
-
-fun nonOvershootingSteps(distance: Vector, currentVector: Vector, nextVector: Vector, steps: Long): Long? {
+fun nonOvershootingSteps(distance: Vector, currentVector: Vector, nextVector: Vector): Long {
+    if (distance.isZero) {
+        return 0
+    }
     if (overshooting(distance, nextVector)) {
         return nonOvershootingSteps(distance / 2, currentVector, nextVector)
     }
-    return steps
+    return (distance / currentVector).quotient
 }
 
 fun overshooting(distance: Vector, step: Vector): Boolean {
-    val (_, remainder) = distance / step
-    return (remainder - step).isNegative
+    val (quotient, remainder) = distance / step
+    return (step * (1 + quotient) - distance).isNegative
 }
 
 fun minimumTokensForSetup(setup: Setup): Long {
