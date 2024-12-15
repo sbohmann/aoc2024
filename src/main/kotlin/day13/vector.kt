@@ -22,6 +22,8 @@ data class Vector(val x: Long, val y: Long) {
         return DivisionResult(factor, remainder)
     }
 
+    val length = x + y
+
     val isNegative = x < 0L || y < 0L
 
     val isZero = x == 0L && y == 0L

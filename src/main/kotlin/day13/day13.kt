@@ -68,29 +68,45 @@ fun approximate(
     bVectorSteps: Long,
     distance: Vector
 ): AdjustedOffset? {
-    val steps = distance / currentVector
-    if (steps.quotient == 0L && !steps.remainder.isZero) {
+    val (distanceOverCurrentVector, stepsForCurrentVector) = divideDistance(distance, currentVector)
+    if (distanceOverCurrentVector.quotient == 0L && !distanceOverCurrentVector.remainder.isZero) {
         return null
     }
-    val relativeOffset = steps.quotient * currentVector
+    val relativeOffset = stepsForCurrentVector * currentVector
+    if (relativeOffset.isZero) {
+        return null
+    }
     if (relativeOffset.isNegative) {
         throw IllegalStateException("Overshot prize")
     }
-    if (steps.remainder.isZero) {
+    if (distanceOverCurrentVector.remainder.isZero) {
         return AdjustedOffset(
             relativeOffset,
-            aVectorSteps + if (vectorA) steps.quotient else 0L,
-            bVectorSteps + if (!vectorA) steps.quotient else 0L,
+            aVectorSteps + if (vectorA) stepsForCurrentVector else 0L,
+            bVectorSteps + if (!vectorA) stepsForCurrentVector else 0L,
         )
     }
+    val (distanceOverNextVector) = divideDistance(distance, nextVector)
+    val usingCurrentVectorForNextIteration: Boolean
+    if (distanceOverCurrentVector.quotient > distanceOverNextVector.quotient) {
+        usingCurrentVectorForNextIteration = true
+    } else {
+        usingCurrentVectorForNextIteration = false
+    }
     return approximate(
-        !vectorA,
-        nextVector,
-        currentVector,
-        aVectorSteps + if (vectorA) steps.quotient else 0L,
-        bVectorSteps + if (!vectorA) steps.quotient else 0L,
+        if (usingCurrentVectorForNextIteration) vectorA else !vectorA,
+        if (usingCurrentVectorForNextIteration) currentVector else nextVector,
+        if (usingCurrentVectorForNextIteration) nextVector else currentVector,
+        aVectorSteps + if (vectorA) stepsForCurrentVector else 0L,
+        bVectorSteps + if (!vectorA) stepsForCurrentVector else 0L,
         distance - relativeOffset
     )
+}
+
+private fun divideDistance(distance: Vector, currentVector: Vector): Pair<DivisionResult, Long> {
+    val distanceOverVector = distance / currentVector
+    val steps = distanceOverVector.quotient / 2
+    return Pair(distanceOverVector, steps)
 }
 
 fun minimumTokensForSetup(setup: Setup): Long {
