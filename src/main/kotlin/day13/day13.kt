@@ -84,22 +84,35 @@ fun approximate(
     if (relativeOffset.isNegative) {
         throw IllegalStateException("Overshot prize")
     }
-    val distanceOverNextVector = distance / nextVector
-    val usingCurrentVectorForNextIteration: Boolean
-    if (distanceOverCurrentVector.quotient > distanceOverNextVector.quotient) {
-        usingCurrentVectorForNextIteration = true
-    } else {
-        usingCurrentVectorForNextIteration = false
+    val nextDistance = distance - relativeOffset
+    if (overshooting(nextDistance, nextVector)) {
+        if (failedBefore) {
+            return null
+        }
+        return approximate(
+            !vectorA,
+            nextVector,
+            currentVector,
+            aVectorSteps + if (vectorA) steps else 0,
+            bVectorSteps + if (!vectorA) steps else 0,
+            distance,
+            true
+        )
     }
     return approximate(
-        if (usingCurrentVectorForNextIteration) vectorA else !vectorA,
-        if (usingCurrentVectorForNextIteration) currentVector else nextVector,
-        if (usingCurrentVectorForNextIteration) nextVector else currentVector,
+        !vectorA,
+        nextVector,
+        currentVector,
         aVectorSteps + if (vectorA) steps else 0L,
         bVectorSteps + if (!vectorA) steps else 0L,
-        distance - relativeOffset,
+        nextDistance,
         failed
     )
+}
+
+fun overshooting(distance: Vector, step: Vector): Boolean {
+    val (_, remainder) = distance / step
+    return (remainder - step).isNegative
 }
 
 fun minimumTokensForSetup(setup: Setup): Long {
