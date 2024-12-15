@@ -9,6 +9,7 @@ val setupRegex = Regex(
             """Button B: X\+(\d+), Y\+(\d+)\r?\n""" +
             """Prize: X=(\d+), Y=(\d+)\s*"""
 )
+
 //const val solutionBOffset = 10000000000000L
 const val solutionBOffset = 0L
 
@@ -57,7 +58,7 @@ data class SearchResult(val aButtonCount: Long, val bButtonCount: Long)
 
 fun searchForPrize(setup: Setup): Long {
     val result =
-        approximate(true, setup.a, setup.b, 0, 0, setup.prize, false)
+        approximate(true, setup.a, setup.b, 0, 0, setup.prize)
             ?: return 0L
     return 3 * result.aButtonCount + result.bButtonCount
 }
@@ -68,36 +69,14 @@ fun approximate(
     nextVector: Vector,
     aVectorSteps: Long,
     bVectorSteps: Long,
-    distance: Vector,
-    failedBefore: Boolean
+    distance: Vector
 ): SearchResult? {
     if (distance.isZero) {
         return SearchResult(aVectorSteps, bVectorSteps)
     }
-    val distanceOverCurrentVector = distance / currentVector
-    val failed = distanceOverCurrentVector.quotient == 0L
-    val steps = distanceOverCurrentVector.quotient
-    val relativeOffset = steps * currentVector
-    if (failed && failedBefore) {
+    val steps = nonOvershootingSteps(distance, currentVector, nextVector)
+    if (steps == null) {
         return null
-    }
-    if (relativeOffset.isNegative) {
-        throw IllegalStateException("Overshot prize")
-    }
-    val nextDistance = distance - relativeOffset
-    if (overshooting(nextDistance, nextVector)) {
-        if (failedBefore) {
-            return null
-        }
-        return approximate(
-            !vectorA,
-            nextVector,
-            currentVector,
-            aVectorSteps + if (vectorA) steps else 0,
-            bVectorSteps + if (!vectorA) steps else 0,
-            distance,
-            true
-        )
     }
     return approximate(
         !vectorA,
@@ -105,9 +84,19 @@ fun approximate(
         currentVector,
         aVectorSteps + if (vectorA) steps else 0L,
         bVectorSteps + if (!vectorA) steps else 0L,
-        nextDistance,
-        failed
+        distance - steps * currentVector
     )
+}
+
+fun nonOvershootingSteps(distance: Vector, currentVector: Vector, nextVector: Vector): Long? {
+    return nonOvershootingSteps(distance, currentVector, nextVector, (distance / currentVector).quotient)
+}
+
+fun nonOvershootingSteps(distance: Vector, currentVector: Vector, nextVector: Vector, steps: Long): Long? {
+    if (overshooting(distance, nextVector)) {
+        return nonOvershootingSteps(distance / 2, currentVector, nextVector)
+    }
+    return steps
 }
 
 fun overshooting(distance: Vector, step: Vector): Boolean {

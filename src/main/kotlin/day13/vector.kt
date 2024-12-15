@@ -22,6 +22,10 @@ data class Vector(val x: Long, val y: Long) {
         return DivisionResult(factor, remainder)
     }
 
+    operator fun div(n: Long): Vector {
+        return Vector(x / n, y / n)
+    }
+
     val length = x + y
 
     val isNegative = x < 0L || y < 0L
