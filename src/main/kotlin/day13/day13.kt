@@ -9,6 +9,7 @@ val setupRegex = Regex(
             """Button B: X\+(\d+), Y\+(\d+)\r?\n""" +
             """Prize: X=(\d+), Y=(\d+)\s*"""
 )
+const val solutionBOffset = 10000000000000L
 
 fun main() {
     val setups = File("input")
@@ -22,9 +23,9 @@ fun main() {
 fun parseSetup(input: String): Setup {
     val match = setupRegex.matchEntire(input)!!
     return Setup(
-        Step(match.groups[1]!!.value.toLong(), match.groups[2]!!.value.toLong()),
-        Step(match.groups[3]!!.value.toLong(), match.groups[4]!!.value.toLong()),
-        Position(match.groups[5]!!.value.toLong(), match.groups[6]!!.value.toLong())
+        Vector(match.groups[1]!!.value.toLong(), match.groups[2]!!.value.toLong()),
+        Vector(match.groups[3]!!.value.toLong(), match.groups[4]!!.value.toLong()),
+        Vector(match.groups[5]!!.value.toLong(), match.groups[6]!!.value.toLong())
     )
 }
 
@@ -38,13 +39,57 @@ fun solveB(setups: List<Setup>): Long {
         .map { setup ->
             setup.copy(prize = prizeAdjustedForBSolution(setup.prize))
         }
-        .fold(0) { sum, next -> sum + minimumTokensForSetup(next) }
+        .fold(0) { sum, next ->
+            return sum + searchForPrize(next)
+        }
 }
 
-fun prizeAdjustedForBSolution(prize: Position): Position {
-    return Position(
-        prize.x + 10000000000000L,
-        prize.y + 10000000000000L
+fun prizeAdjustedForBSolution(prize: Vector): Vector {
+    return Vector(
+        prize.x + solutionBOffset,
+        prize.y + solutionBOffset
+    )
+}
+
+data class AdjustedOffset(val position: Vector, val aButtonCount: Long, val bButtonCount: Long)
+
+fun searchForPrize(setup: Setup): Long {
+    val result =
+        approximate(true, setup.a, setup.b, 0, 0, setup.prize)
+            ?: return 0L
+    return 3 * result.aButtonCount + result.bButtonCount
+}
+
+fun approximate(
+    vectorA: Boolean,
+    currentVector: Vector,
+    nextVector: Vector,
+    aVectorSteps: Long,
+    bVectorSteps: Long,
+    distance: Vector
+): AdjustedOffset? {
+    val steps = distance / currentVector
+    if (steps.quotient == 0L && !steps.remainder.isZero) {
+        return null
+    }
+    val relativeOffset = steps.quotient * currentVector
+    if (relativeOffset.isNegative) {
+        throw IllegalStateException("Overshot prize")
+    }
+    if (steps.remainder.isZero) {
+        return AdjustedOffset(
+            relativeOffset,
+            aVectorSteps + if (vectorA) steps.quotient else 0L,
+            bVectorSteps + if (!vectorA) steps.quotient else 0L,
+        )
+    }
+    return approximate(
+        !vectorA,
+        nextVector,
+        currentVector,
+        aVectorSteps + if (vectorA) steps.quotient else 0L,
+        bVectorSteps + if (!vectorA) steps.quotient else 0L,
+        distance - relativeOffset
     )
 }
 
@@ -52,8 +97,8 @@ fun minimumTokensForSetup(setup: Setup): Long {
     var aButtonCount = 0
     val results = mutableListOf<Long>()
     while (true) {
-        val xOffset = aButtonCount * setup.a.dx
-        val yOffset = aButtonCount * setup.a.dy
+        val xOffset = aButtonCount * setup.a.x
+        val yOffset = aButtonCount * setup.a.y
         if (xOffset > setup.prize.x || yOffset > setup.prize.y) {
             break
         }
@@ -69,8 +114,8 @@ fun minimumTokensForSetup(setup: Setup): Long {
 fun findBButtonCount(setup: Setup, xOffset: Long, yOffset: Long): Long? {
     var bButtonCount = 0L
     while (true) {
-        val dx = bButtonCount * setup.b.dx
-        val dy = bButtonCount * setup.b.dy
+        val dx = bButtonCount * setup.b.x
+        val dy = bButtonCount * setup.b.y
         val x = xOffset + dx
         val y = yOffset + dy
         if (x == setup.prize.x && y == setup.prize.y) {
@@ -83,8 +128,4 @@ fun findBButtonCount(setup: Setup, xOffset: Long, yOffset: Long): Long? {
     }
 }
 
-data class Setup(val a: Step, val b: Step, val prize: Position)
-
-data class Position(val x: Long, val y: Long)
-
-data class Step(val dx: Long, val dy: Long)
+data class Setup(val a: Vector, val b: Vector, val prize: Vector)
