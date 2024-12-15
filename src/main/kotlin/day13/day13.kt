@@ -9,7 +9,8 @@ val setupRegex = Regex(
             """Button B: X\+(\d+), Y\+(\d+)\r?\n""" +
             """Prize: X=(\d+), Y=(\d+)\s*"""
 )
-const val solutionBOffset = 10000000000000L
+//const val solutionBOffset = 10000000000000L
+const val solutionBOffset = 0L
 
 fun main() {
     val setups = File("input")
@@ -35,12 +36,13 @@ fun solveA(setups: List<Setup>): Long {
 }
 
 fun solveB(setups: List<Setup>): Long {
-    return setups
+    val adjustedSetups = setups
         .map { setup ->
             setup.copy(prize = prizeAdjustedForBSolution(setup.prize))
         }
+    return adjustedSetups
         .fold(0) { sum, next ->
-            return sum + searchForPrize(next)
+            sum + searchForPrize(next)
         }
 }
 
@@ -51,11 +53,11 @@ fun prizeAdjustedForBSolution(prize: Vector): Vector {
     )
 }
 
-data class AdjustedOffset(val position: Vector, val aButtonCount: Long, val bButtonCount: Long)
+data class SearchResult(val aButtonCount: Long, val bButtonCount: Long)
 
 fun searchForPrize(setup: Setup): Long {
     val result =
-        approximate(true, setup.a, setup.b, 0, 0, setup.prize)
+        approximate(true, setup.a, setup.b, 0, 0, setup.prize, false)
             ?: return 0L
     return 3 * result.aButtonCount + result.bButtonCount
 }
@@ -66,26 +68,21 @@ fun approximate(
     nextVector: Vector,
     aVectorSteps: Long,
     bVectorSteps: Long,
-    distance: Vector
-): AdjustedOffset? {
-    val distanceOverCurrentVector = distance / currentVector
-    val steps = distanceOverCurrentVector.quotient
-    if (distanceOverCurrentVector.quotient == 0L && !distanceOverCurrentVector.remainder.isZero) {
-        return null
+    distance: Vector,
+    failedBefore: Boolean
+): SearchResult? {
+    if (distance.isZero) {
+        return SearchResult(aVectorSteps, bVectorSteps)
     }
+    val distanceOverCurrentVector = distance / currentVector
+    val failed = distanceOverCurrentVector.quotient == 0L
+    val steps = distanceOverCurrentVector.quotient
     val relativeOffset = steps * currentVector
-    if (relativeOffset.isZero) {
+    if (failed && failedBefore) {
         return null
     }
     if (relativeOffset.isNegative) {
         throw IllegalStateException("Overshot prize")
-    }
-    if (distanceOverCurrentVector.remainder.isZero) {
-        return AdjustedOffset(
-            relativeOffset,
-            aVectorSteps + if (vectorA) steps else 0L,
-            bVectorSteps + if (!vectorA) steps else 0L,
-        )
     }
     val distanceOverNextVector = distance / nextVector
     val usingCurrentVectorForNextIteration: Boolean
@@ -100,7 +97,8 @@ fun approximate(
         if (usingCurrentVectorForNextIteration) nextVector else currentVector,
         aVectorSteps + if (vectorA) steps else 0L,
         bVectorSteps + if (!vectorA) steps else 0L,
-        distance - relativeOffset
+        distance - relativeOffset,
+        failed
     )
 }
 
